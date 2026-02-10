@@ -2,8 +2,10 @@
 
 Medical image segmentation remains challenging due to ill-defined boundaries, heterogeneous lesion morphology, and the need for real-time inference in clinical workflows. Existing approaches often trade boundary fidelity for efficiency, or rely on large-scale models with prohibitive computational cost. We propose **BG-SegNet** (Boundary-Gated Segmentation Network), a lightweight framework that couples a frozen SAM2 encoder with an explicit boundary-aware gating mechanism. The network aggregates multi-scale features into a compact representation, predicts boundary strength and orientation fields under soft boundary-band supervision, and uses them as spatial gating signals to drive orientation-aware anisotropic convolutions only where refinement is required. Uncertainty-aware modulation further suppresses artifact-induced noise, and a progressive gradient-unfolding strategy facilitates stable joint optimization of semantic and boundary representations. On a custom wound segmentation dataset, BG-SegNet achieves high Dice and mIoU while running at several hundred frames per second, offering a markedly better accuracy–efficiency trade-off than heavier foundation-model baselines. On the PH2 dermoscopic lesion dataset, it attains competitive performance compared with specialized skin-lesion architectures, indicating strong cross-domain generalization.
 
+## Network
 ![Overall Model Architecture](figures/model.png)
 
+## Evaluation
 ![Experimental Results](figures/results.png)
 
 ## Datasets
