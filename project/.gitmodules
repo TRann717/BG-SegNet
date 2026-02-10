@@ -1,0 +1,9 @@
+[submodule "third_party/OneFormer"]
+	path = third_party/OneFormer
+	url = https://github.com/SHI-Labs/OneFormer
+[submodule "third_party/detectron2"]
+	path = third_party/detectron2
+	url = https://github.com/facebookresearch/detectron2
+[submodule "third_party/sam2"]
+	path = third_party/sam2
+	url = https://github.com/facebookresearch/sam2

@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ML/Data
+mlruns/
+*.pth
+*.pt
+*.ckpt
+checkpoints/
+logs/
+runs/
+*/runs/
+**/runs/
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+data/kvasir_seg/
+*.jpg
+*.png
+*.jpeg
+*.bmp
+
+# Test files
+test_*.py
+*_test.py
+
+# Configuration backups
+*.yaml.bak
+*.json.bak
+
+X-Decoder
+Mask2Former
+detr
+cache
+
+
+data
