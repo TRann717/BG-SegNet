@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 from pathlib import Path
 
-# 添加src到路径
+
 sys.path.append(str(Path(__file__).parent))
 
 from src.data.dataset_mask import get_dataloader
