@@ -224,7 +224,7 @@ class Trainer:
                     if torch.isnan(loss) or torch.isinf(loss):
                         print(f"[ERROR] Batch {i}: Invalid loss detected: loss={loss.item()}, loss_dict={loss_dict}")
                         print(f"        Skipping this batch and continuing...")
-                        # 跳过这个 batch，不更新梯度
+                        
                         continue
                 
                 # Backward pass with AMP scaling
@@ -258,9 +258,9 @@ class Trainer:
                         total_norm = nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
                         if torch.isnan(total_norm) or torch.isinf(total_norm):
                             print(f"[ERROR] Batch {i}: Gradient norm is NaN/Inf: {total_norm}, skipping optimizer step")
-                            # 清零梯度，跳过这一步
+                            
                             self.optimizer.zero_grad()
-                            self.scaler.update()  # 更新scaler状态，避免scaler状态不一致
+                            self.scaler.update()  
                             continue
                         # Log large but finite gradient norms for debugging.
                         if total_norm > 50.0:
@@ -295,7 +295,7 @@ class Trainer:
                 if torch.isnan(loss) or torch.isinf(loss):
                     print(f"[ERROR] Batch {i}: Invalid loss detected: loss={loss.item()}, loss_dict={loss_dict}")
                     print(f"        Skipping this batch and continuing...")
-                    # 跳过这个 batch，不更新梯度
+                    
                     continue
                 
                 loss.backward()
