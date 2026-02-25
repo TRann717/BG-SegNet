@@ -429,9 +429,9 @@ class Trainer:
                         "val/overall_acc": float(val_scores['overall_acc']),
                         "val/mbiou": float(val_scores.get('mbiou', 0.0)),
                     } | lr_payload
-                    # 写标量
+                    
                     self.logger.add_scalar_dict(payload, epoch)
-                    # 写 CSV
+                    
                     row = {
                         "train/loss": train_loss,
                         "train/miou": float(train_scores['miou']),
@@ -440,7 +440,7 @@ class Trainer:
                     } | payload
                     self.logger.write_csv_row(epoch, row)
             
-            # 学习率调度
+            
             if self.scheduler:
                 self.scheduler.step()
         
