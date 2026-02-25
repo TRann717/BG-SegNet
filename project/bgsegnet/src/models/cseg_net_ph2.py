@@ -39,7 +39,7 @@ class CSegNet(nn.Module):
 
         # Neck: UPerNet (PPM + FPN) using probed channel dimensions.
         self.neck = UPerNet(
-            in_channels_dict=in_channels_dict,  # 使用自检的通道，不用config里的
+            in_channels_dict=in_channels_dict,  
             out_channels=model_cfg['neck']['out_channels'],
             ppm_bins=model_cfg['neck']['ppm_bins']
         )
@@ -61,7 +61,7 @@ class CSegNet(nn.Module):
         self.use_aux = model_cfg['head']['aux_loss']
         if self.use_aux:
             self.aux_head = AuxHead(
-                in_channels=in_channels_dict['F8'],  # 使用自检的通道
+                in_channels=in_channels_dict['F8'], 
                 num_classes=data_cfg['num_classes']
             )
         
@@ -82,7 +82,7 @@ class CSegNet(nn.Module):
             self.boundary_refine_alpha = model_cfg['boundary'].get('refine_alpha', 0.2)
             self.adaptive_alpha = model_cfg['boundary'].get('adaptive_alpha', True)
             self.alpha_min = model_cfg['boundary'].get('alpha_min', 0.15)
-            self.alpha_max = model_cfg['boundary'].get('alpha_max', 0.35)  # 收紧上限
+            self.alpha_max = model_cfg['boundary'].get('alpha_max', 0.35)  
             self.gamma_alpha = model_cfg['boundary'].get('gamma_alpha', 1.0)
             
             # Boundary supervision heads (used only in loss), with optional 1/4 and 1/8 scales.
@@ -149,7 +149,7 @@ class CSegNet(nn.Module):
         for k, v in features.items():
             if torch.isnan(v).any() or torch.isinf(v).any():
                 print(f"[ERROR] Backbone feature {k} contains NaN/Inf! Stats: min={v.min()}, max={v.max()}, nan_count={torch.isnan(v).sum()}")
-                # 尝试修复：替换为0
+               
                 features[k] = torch.where(torch.isnan(v) | torch.isinf(v), torch.zeros_like(v), v)
         
         # 2. Neck fusion.
@@ -271,8 +271,8 @@ class CSegNet(nn.Module):
             print(f"[ERROR] All logits are NaN/Inf! This indicates model parameters may be corrupted.")
             print(f"       Logits stats: min={logits.min()}, max={logits.max()}, nan_count={torch.isnan(logits).sum()}, inf_count={torch.isinf(logits).sum()}")
             logits = torch.zeros_like(logits)
-            logits[:, 0] = -0.1  # 稍微偏向背景
-            logits[:, 1] = 0.1   # 稍微偏向前景
+            logits[:, 0] = -0.1 
+            logits[:, 1] = 0.1  
         elif torch.isnan(logits).any() or torch.isinf(logits).any():
             print(f"[WARN] Some logits are NaN/Inf, replacing with safe values")
             logits = torch.clamp(logits, min=-50.0, max=50.0)
