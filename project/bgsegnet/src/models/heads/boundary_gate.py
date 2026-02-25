@@ -137,7 +137,7 @@ class BoundaryGate(nn.Module):
         if adaptive_alpha:
             g_pow = torch.pow(g, gamma_alpha)  # (B, 1, H, W)
             alpha_spatial = alpha_min + (alpha_max - alpha_min) * g_pow
-            # alpha_spatial形状: (B, 1, H, W)
+            
         else:
             alpha_spatial = alpha
         
