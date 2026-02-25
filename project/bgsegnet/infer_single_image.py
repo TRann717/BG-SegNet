@@ -78,10 +78,10 @@ def infer_single(config_path: str, checkpoint_path: str, image_path: str, out_pa
     device = torch.device(device_str or ('cuda' if torch.cuda.is_available() else 'cpu'))
     config = load_config(config_path)
 
-    # 模型
+    
     model = load_model_from_ckpt(config_path, checkpoint_path, device)
 
-    # 读图与预处理
+    
     img_bgr = load_image_bgr(image_path)
     H, W = tuple(config['data']['img_size'])
     inp, (orig_h, orig_w) = preprocess(img_bgr, (H, W))
@@ -89,7 +89,7 @@ def infer_single(config_path: str, checkpoint_path: str, image_path: str, out_pa
 
     with torch.no_grad():
         outputs = model(inp)
-        # 参照评估脚本的输出解析
+       
         if isinstance(outputs, dict):
             if 'logits' in outputs:
                 preds = outputs['logits']
@@ -109,7 +109,7 @@ def infer_single(config_path: str, checkpoint_path: str, image_path: str, out_pa
         if preds.ndim != 4:
             raise ValueError(f"Expected (B,C,H,W), got {preds.shape}")
 
-        # 确保是2类概率，并阈值化前景
+       
         if preds.shape[1] == 2:
             probs = torch.softmax(preds, dim=1)
             fg_prob = probs[:, 1:2]
@@ -120,7 +120,7 @@ def infer_single(config_path: str, checkpoint_path: str, image_path: str, out_pa
             fg_prob = probs[:, 1:2]
 
         bin_mask = (fg_prob >= threshold).to(torch.uint8)  # 1x1xHxW
-        # 还原到原始尺寸
+       
         bin_mask = F.interpolate(bin_mask.float(), size=(orig_h, orig_w), mode='nearest').to(torch.uint8)
 
     mask_np = bin_mask.squeeze(0).squeeze(0).cpu().numpy()
