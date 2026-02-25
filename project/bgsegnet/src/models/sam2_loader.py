@@ -40,7 +40,7 @@ def load_sam2_model(sam2_path, device='cuda'):
         # Load checkpoint weights (without `weights_only` for broader PyTorch compatibility).
         ckpt_path = str(sam2_dir / "sam2.1_hiera_base_plus.pt")
         if Path(ckpt_path).exists():
-            sd = torch.load(ckpt_path, map_location="cpu")  # 移除weights_only参数
+            sd = torch.load(ckpt_path, map_location="cpu") 
             if "model" in sd:
                 sam2_model.load_state_dict(sd["model"], strict=True)
             elif "models" in sd:
@@ -104,7 +104,7 @@ class SAM2FeatureExtractor(nn.Module):
     """
     def __init__(self, sam2_path, freeze=True, img_mean=(123.675,116.28,103.53), img_std=(58.395,57.12,57.375)):
         super().__init__()
-        self.sam2 = load_sam2_model(sam2_path)  # 建议这里对官方API做适配
+        self.sam2 = load_sam2_model(sam2_path) 
         self._frozen = freeze
         if freeze:
             for p in self.sam2.parameters():
@@ -147,9 +147,9 @@ class SAM2FeatureExtractor(nn.Module):
         if isinstance(feats, list):
             # Common SAM2 layout: [low_res, mid_res, high_res] = [1/16, 1/8, 1/4].
             if len(feats) >= 3:
-                out["F16"] = feats[0]  # 最低分辨率 1/16
-                out["F8"] = feats[1]   # 中间分辨率 1/8
-                out["F4"] = feats[2]   # 最高分辨率 1/4
+                out["F16"] = feats[0]  #  1/16
+                out["F8"] = feats[1]   #  1/8
+                out["F4"] = feats[2]   #  1/4
             elif len(feats) == 2:
                 out["F16"] = feats[0]
                 out["F8"] = feats[1]
