@@ -133,7 +133,7 @@ class UPerNet(nn.Module):
         if not return_pyramid:
             return out
         
-        # 返回平滑后的 p4/p8/p16 与 PPM，用于多尺度边界
+        
         return {
             "out": out,    # 1/4 fused
             "p4": p4,      # 1/4  
