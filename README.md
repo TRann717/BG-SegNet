@@ -6,8 +6,10 @@ submitted to *The Visual Computer*. The code, pretrained weights, and evaluation
 
 Medical image segmentation is crucial for clinical analysis, yet it faces challenges such as ill-defined boundaries and the need for real-time processing. This paper introduces BG-SegNet, a lightweight framework that integrates a frozen SAM2 encoder with an explicit boundary-aware gating mechanism. BG-SegNet aggregates multi-scale features, predicts boundary strength and orientation fields, and employs them as spatial gating signals for orientation-aware anisotropic convolutions. The framework achieves high accuracy and efficiency, demonstrating superior performance on a custom wound segmentation dataset and competitive results on the PH2 dermoscopic lesion dataset. Our approach offers a promising solution for real-time, boundary-precise medical image segmentation.
 
+## Architecture
 ![Overall Model Architecture](figures/model.png)
 
+## Results
 ![Experimental Results](figures/results.png)
 
 ## Datasets
