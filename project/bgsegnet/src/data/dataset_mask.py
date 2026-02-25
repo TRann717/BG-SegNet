@@ -49,7 +49,7 @@ class YOLOSegDataset(Dataset):
         
         print(f"Found {len(self.img_files)} images in {split} set")
         
-        # 设置数据增强
+       
         self.transform = self._get_transform()
     
     def _get_transform(self):
@@ -97,7 +97,7 @@ class YOLOSegDataset(Dataset):
             
             for line in lines:
                 parts = line.strip().split()
-                if len(parts) < 6:  # 至少需要3个点（6个坐标）
+                if len(parts) < 6: 
                     continue
                 
                 class_id = int(parts[0])
@@ -142,13 +142,13 @@ def get_dataloader(config, split='train'):
         augment=(split == 'train')
     )
     
-    # 数据加载器优化参数
+   
     num_workers = config['data'].get('workers', 4)
     loader_kwargs = {
         'pin_memory': config['data'].get('pin_memory', True),
         'prefetch_factor': config['data'].get('prefetch_factor', 2) if num_workers > 0 else None,
         'persistent_workers': config['data'].get('persistent_workers', True) if num_workers > 0 else False,
-        'worker_init_fn': worker_init_fn  # 确保worker的可重复性
+        'worker_init_fn': worker_init_fn  
     }
     
     dataloader = torch.utils.data.DataLoader(
