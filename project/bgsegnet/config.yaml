@@ -1,0 +1,144 @@
+experiment: "bgsegnet_wound"
+
+data:
+  task: "semantic"                # semantic | instance
+  dataset_root: "/root/autodl-tmp/yolo_seg"
+  num_classes: 2                  
+  ignore_index: 255
+  class_names: ["background", "wound"]
+  class_weights: null
+  class_freq: [0.90, 0.10]              
+  workers: 4
+  pin_memory: true              # Faster CPU->GPU transfer
+  prefetch_factor: 2            # Preload next batches
+  persistent_workers: true      # Avoid worker restart overhead
+  img_size: [640, 640]
+  aug:
+    crop_size: [512, 512]
+    hflip: true
+    color_jitter: [0.2, 0.2, 0.2, 0.1]
+    rotate_deg: 10
+    scale_range: [0.75, 1.25]
+    blur_prob: 0.1
+
+model:
+  sam2_path: "/root/autodl-tmp/BG-SegNet/project/sam2.1-hiera-base-plus"
+  freeze_backbone: true
+  in_channels: {F4: 256, F8: 64, F16: 32}   
+  neck:
+    type: "upernet"            # "upernet" (PPM+FPN) | "fpn"
+    ppm_bins: [1,2,3,6]
+    out_channels: 256
+  head:
+    type: "decoder_head"
+    channels: 256
+    num_classes: 2
+    dropout: 0.1
+    up_type: "bilinear"        # "bilinear" | "carafe" 
+    aux_loss: true
+    aux_weight: 0.4
+    gum: true                 
+  boundary:
+    enable: true
+    weight: 0.15               
+    class_aware: true         
+    with_dir: true             
+    dir_weight: 0.15          
+    margin_weight: 0.1        
+    consis_weight: 0.1        
+    softmax_beta: 6.0         
+    k_size: 3                  
+    refine_alpha: 0.2         
+    supervision: "morph"       
+    band_pixels: 6             
+    sigma: 2.5                 
+    multiscale: true          
+    
+    # Edge-boost
+    use_se: true              
+    adaptive_alpha: true      
+    alpha_min: 0.15          
+    alpha_max: 0.35           
+    gamma_alpha: 1.0         
+    
+    
+    use_unified: true        
+    focal_weight: 0.6         
+    bce_weight: 0.3          
+    l1_weight: 0.3            
+    grad_weight: 0.0         
+    ms_weight: 0.1            
+    focal_alpha: 0.25         
+    focal_gamma: 2.0          
+    
+   
+    oabg_enable: true         
+    class_mixing: true       
+    u_aware_alpha: true       
+    u_kl_weight: 0.05        
+    
+    gate:
+      lambda_f4: 0.6          
+      lambda_f8: 0.4
+      allow_gate_grad: true    
+      grad_unfreeze_epoch: 5   
+      performance_driven: false
+      unfreeze_patience: 2     
+      grad_release_eta: 0.3    
+
+train:
+  epochs: 100
+  batch_size: 8                 # Increased from 2 -> 8 for better GPU utilization
+  accum_steps: 2                # Reduced from 8 -> 2 (effective batch = 16)
+  lr: 0.0001
+  weight_decay: 0.05
+  optimizer: "adamw"
+  scheduler: "cosine"
+  warmup_iters: 500
+  amp: true
+  ema: false
+  grad_clip: 1.0
+  seed: 42
+  save_best_by: "miou"         # miou | biou
+  val_freq: 3                   # Reduced validation frequency for speed
+  cudnn_benchmark: true         # Auto-tune convolutions for speed
+  bd_warmup_epochs: 5          
+
+loss:
+  ce_weight: 1.0
+  dice_weight: 0.5
+  dice_ignore_background: true  
+  ohem: false
+  lovasz: false
+  use_tversky: false          
+  tversky_alpha: 0.3           
+  tversky_beta: 0.7           
+  
+  use_bootstrapped_ce: false  
+  bootstrap_k_ratio: 0.3       
+  bootstrap_band: 5            
+  bootstrap_use_morph: true    
+  
+  
+  band_supcon_enable: true
+  band_supcon_weight: 0.3      # 0.2~0.4
+  band_supcon_margin: 0.2
+  curv_aware_enable: true
+  curv_aware_weight: 0.2       
+  curv_min_normal: 0.3        
+
+dist:
+  backend: "nccl"
+  find_unused: false
+
+log:
+  outdir: "runs"
+  tensorboard:
+    enable: true
+    log_every: 50      
+    images: true       
+    max_samples: 4     
+  wandb:
+    enable: false
+    project: "cseg_closed"
+    mode: "disabled"             # "offline" | "disabled"

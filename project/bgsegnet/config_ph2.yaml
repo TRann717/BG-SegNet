@@ -1,0 +1,158 @@
+experiment: "ph2_bgsegnet"
+
+data:
+  task: "semantic"                # semantic | instance
+  
+  dataset_root: "/root/autodl-tmp/PH2 Dataset/PH2Dataset"
+  num_classes: 2                  # background + lesion
+  ignore_index: 255
+  class_names: ["background", "lesion"]
+  
+  
+  class_freq: [0.677466, 0.322534]  
+  class_weights: [1.0, 1.449]      
+  workers: 8                       
+  pin_memory: true
+  prefetch_factor: 4             
+  persistent_workers: true
+  img_size: [192, 256]
+  aug:
+    pipeline: "litemamba"
+    crop_size: [192, 256]
+    hflip: true
+    vflip: true
+    flip_prob: 0.5
+    rotate_prob: 0.5
+    rrc_prob: 0.1
+    color_jitter: [0.0, 0.0, 0.0, 0.0]
+    rotate_deg: 15
+    scale_range: [0.8, 0.95]
+    blur_prob: 0.0
+
+model:
+  sam2_path: "/root/autodl-tmp/BG-SegNet/project/sam2.1-hiera-base-plus"
+  freeze_backbone: true
+  in_channels: {F4: 256, F8: 64, F16: 32}   
+  neck:
+    type: "upernet"            # "upernet" (PPM+FPN) | "fpn"
+    ppm_bins: [1,2,3,6]
+    out_channels: 256
+  head:
+    type: "decoder_head"
+    channels: 256
+    num_classes: 2
+    dropout: 0.15              
+    up_type: "bilinear"
+    aux_loss: true
+    aux_weight: 0.40
+    gum: true
+  boundary:
+    enable: true
+    weight: 0.12              
+    class_aware: true
+    with_dir: true
+    dir_weight: 0.08         
+    margin_weight: 0.05        
+    consis_weight: 0.08        
+    softmax_beta: 6.0
+    k_size: 3
+    refine_alpha: 0.20
+    supervision: "morph"
+    band_pixels: 6
+    sigma: 2.0
+    multiscale: true
+
+    # Edge-boost 
+    use_se: true
+    adaptive_alpha: true
+    alpha_min: 0.15
+    alpha_max: 0.35
+    gamma_alpha: 0.9
+
+    
+    use_unified: true
+    focal_weight: 0.6
+    bce_weight: 0.35
+    l1_weight: 0.30
+    grad_weight: 0.05          
+    ms_weight: 0.08           
+    focal_alpha: 0.25
+    focal_gamma: 2.0
+
+   
+    oabg_enable: true
+    class_mixing: true
+    u_aware_alpha: true
+    u_kl_weight: 0.05
+
+    gate:
+      lambda_f4: 0.6
+      lambda_f8: 0.4
+      allow_gate_grad: true
+      grad_unfreeze_epoch: 10
+      performance_driven: false
+      unfreeze_patience: 3
+      grad_release_eta: 0.25
+
+train:
+  epochs: 2
+  batch_size: 16                
+  accum_steps: 1                
+  lr: 0.00002                   
+  weight_decay: 0.03           
+  optimizer: "adamw"
+  scheduler: "cosine"
+  warmup_iters: 800            
+  amp: true
+  amp_init_scale: 1024
+  amp_growth_interval: 2000
+  amp_growth_factor: 2.0
+  amp_backoff_factor: 0.5
+  ema: false
+  grad_clip: 1.0               
+  seed: 42
+  save_best_by: "dice"         
+  val_freq: 1
+  cudnn_benchmark: true
+  bd_warmup_epochs: 10         
+
+loss:
+  ce_weight: 0.8
+  dice_weight: 0.85
+  dice_ignore_background: true
+  ohem: false
+  lovasz: false
+  use_tversky: false
+  tversky_alpha: 0.3
+  tversky_beta: 0.7
+
+  
+  use_bootstrapped_ce: false
+  bootstrap_k_ratio: 0.3
+  bootstrap_band: 5
+  bootstrap_use_morph: true
+
+ 
+  band_supcon_enable: true
+  band_supcon_weight: 0.18     
+  band_supcon_margin: 0.2
+  curv_aware_enable: true
+  curv_aware_weight: 0.12     
+  curv_min_normal: 0.3
+
+dist:
+  backend: "nccl"
+  find_unused: false
+
+log:
+  outdir: "runs"
+  tensorboard:
+    enable: true
+    log_every: 50
+    images: true
+    max_samples: 4
+  wandb:
+    enable: false
+    project: "cseg_closed"
+    mode: "disabled"
+
