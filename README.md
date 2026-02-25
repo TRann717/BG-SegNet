@@ -1,11 +1,13 @@
-# BG-SegNet: Efficient Boundary Optimization and Real-Time Inference for Wound Image Segmentation
+# BG-SegNet: Enhancing Boundary Precision in Medical Image Segmentation with a Lightweight Framework
 
-Medical image segmentation remains challenging due to ill-defined boundaries, heterogeneous lesion morphology, and the need for real-time inference in clinical workflows. Existing approaches often trade boundary fidelity for efficiency, or rely on large-scale models with prohibitive computational cost. We propose **BG-SegNet** (Boundary-Gated Segmentation Network), a lightweight framework that couples a frozen SAM2 encoder with an explicit boundary-aware gating mechanism. The network aggregates multi-scale features into a compact representation, predicts boundary strength and orientation fields under soft boundary-band supervision, and uses them as spatial gating signals to drive orientation-aware anisotropic convolutions only where refinement is required. Uncertainty-aware modulation further suppresses artifact-induced noise, and a progressive gradient-unfolding strategy facilitates stable joint optimization of semantic and boundary representations. On a custom wound segmentation dataset, BG-SegNet achieves high Dice and mIoU while running at several hundred frames per second, offering a markedly better accuracy–efficiency trade-off than heavier foundation-model baselines. On the PH2 dermoscopic lesion dataset, it attains competitive performance compared with specialized skin-lesion architectures, indicating strong cross-domain generalization.
+This repository provides the **official implementation** of the manuscript  
+**"BG-SegNet: Enhancing Boundary Precision in Medical Image Segmentation with a Lightweight Framework"**,  
+submitted to *The Visual Computer*. The code, pretrained weights, and evaluation results in this repository are **directly related** to the above manuscript. If you use this code or models in your research, please consider citing our paper (see the [Citation](#citation) section).
 
-## Network
+Medical image segmentation is crucial for clinical analysis, yet it faces challenges such as ill-defined boundaries and the need for real-time processing. This paper introduces BG-SegNet, a lightweight framework that integrates a frozen SAM2 encoder with an explicit boundary-aware gating mechanism. BG-SegNet aggregates multi-scale features, predicts boundary strength and orientation fields, and employs them as spatial gating signals for orientation-aware anisotropic convolutions. The framework achieves high accuracy and efficiency, demonstrating superior performance on a custom wound segmentation dataset and competitive results on the PH2 dermoscopic lesion dataset. Our approach offers a promising solution for real-time, boundary-precise medical image segmentation.
+
 ![Overall Model Architecture](figures/model.png)
 
-## Evaluation
 ![Experimental Results](figures/results.png)
 
 ## Datasets
@@ -63,6 +65,10 @@ We also evaluate on the PH2 dataset. See `train_ph2_5fold.py` for 5-fold cross-v
               tqdm tensorboard Pillow hydra-core omegaconf scipy \
               scikit-image scikit-learn
   ```
+- We recommend creating a fresh virtual environment and installing dependencies via:
+  ```bash
+  pip install -r BG-SegNet\project\requirements.txt 
+  ```
 
 ### SAM2 Weights
 
@@ -78,7 +84,7 @@ We also evaluate on the PH2 dataset. See `train_ph2_5fold.py` for 5-fold cross-v
 
 ## Usage
 
-Configuration files will be uploaded after acceptance.
+Configuration files (e.g., `config.yaml` for the wound dataset and `config_ph2_best.yaml` for PH2) are included in this repository and can be used to reproduce the main experiments reported in the manuscript.
 
 ### Training
 
@@ -114,7 +120,7 @@ python train_ph2_5fold.py --config config_ph2_best.yaml --ph2_root /path/to/PH2
 ```bash
 python -m src.evaluate_csegnet \
   --config config.yaml \
-  --checkpoint runs/<experiment>/weights/best.pth \
+  --checkpoint best.pth \
   --data_root /path/to/yolo_seg \
   --output_dir evaluation_results \
   --batch_size 16
@@ -125,38 +131,74 @@ python -m src.evaluate_csegnet \
 ```bash
 python infer_single_image.py \
   --config config.yaml \
-  --checkpoint runs/<experiment>/weights/best.pth \
+  --checkpoint best.pth \
   --image /path/to/input.png \
   --out /path/to/output_mask.png \
   --threshold 0.5
+```
+
+## Pretrained Weights and Evaluation Results
+
+- **Pretrained checkpoint**: `best.pth` (trained on the custom wound segmentation dataset used in the paper).
+- **Evaluation results**: `evaluation_results/`
+  - `evaluation_metrics.json`: quantitative metrics corresponding to the main results in the manuscript.
+  - `comparison_images/`: qualitative comparisons on the test set.
+
+To reproduce the test-time evaluation using the provided checkpoint:
+
+```bash
+cd project/bgsegnet
+python -m src.evaluate_csegnet \
+  --config config.yaml \
+  --checkpoint best.pth \
+  --data_root /path/to/yolo_seg \
+  --output_dir ../../evaluation_results_reproduced \
+  --batch_size 16
 ```
 
 ## Code Structure
 
 ```
 bgsegnet/
-  ├── config.yaml                 # Main configuration for yolo_seg
-  ├── config_ph2_best.yaml        # PH2 configuration
-  ├── train.py                    # Main training script
-  ├── train_ph2_5fold.py          # 5-fold CV for PH2
+  ├── config.yaml                 # Main configuration for YOLO-formatted wound dataset
+  ├── config_ph2_best.yaml        # PH2 configuration (5-fold CV)
+  ├── train.py                    # Main training script for wound dataset
+  ├── train_ph2_5fold.py          # 5-fold CV training for PH2
   ├── infer_single_image.py       # Single-image inference
   └── src/
       ├── config/loader.py        # YAML config loader
       ├── data/
-      │   └── dataset_mask.py     # YOLO polygon → mask dataset
+      │   ├── dataset_mask.py     # YOLO polygon → mask dataset (wound)
+      │   └── dataset_mask_ph2.py # PH2 mask dataset
       ├── engine/
-      │   ├── trainer.py          # Training loop with boundary curriculum
-      │   └── metrics.py          # Comprehensive evaluation metrics
+      │   ├── trainer.py          # Training loop with boundary curriculum (wound)
+      │   ├── trainer_ph2.py      # Training loop for PH2
+      │   ├── metrics.py          # Comprehensive evaluation metrics
+      │   └── metrics_unit.py     
       ├── losses/
       │   └── seg_losses.py       # Segmentation + unified soft boundary loss
       ├── models/
       │   ├── sam2_loader.py      # SAM2 loading & feature extraction
       │   ├── cseg_net.py         # BG-SegNet main model
-      │   ├── neck/ppm.py         # UPerNet (PPM + FPN)
+      │   ├── neck/ppm.py         # UPerNet (PPM + FPN) neck
       │   └── heads/
-      │       ├── decoder_head.py # Main decoder + GUM
+      │       ├── decoder_head.py  # Main decoder + gating module
       │       ├── boundary_head.py # Boundary prediction head
       │       └── boundary_gate.py # Boundary-gated refinement module
       └── utils/logger.py         # TensorBoard & CSV logging
-  
+```
+
+## Citation
+
+If you find this repository useful in your research, please consider citing our paper:
+
+```bibtex
+@article{Li2025BGSegNet,
+  title   = {BG-SegNet: Enhancing Boundary Precision in Medical Image Segmentation with a Lightweight Framework},
+  author  = {Bo Li and Ran Tian and Others},
+  journal = {The Visual Computer},
+  year    = {2025},
+  note    = {Under review},
+  % doi   = {10.XXXX/XXXXX}  % To be updated after acceptance
+}
 ```
