@@ -26,7 +26,7 @@ import torch
 import yaml
 import cv2
 
-# 添加 src 到路径
+
 import sys
 sys.path.append(str(Path(__file__).parent))
 
@@ -101,7 +101,7 @@ def measure_fps(model: torch.nn.Module, dataloader, device: torch.device, warmup
     for i, batch in enumerate(dataloader):
         images = batch["image"].to(device, non_blocking=True)
 
-        # warmup：避免首批 cuDNN/Kernel 初始化影响
+       
         if device.type == "cuda":
             torch.cuda.synchronize()
         t0 = time.perf_counter()
@@ -123,7 +123,7 @@ def measure_fps(model: torch.nn.Module, dataloader, device: torch.device, warmup
 def compute_model_stats(model: torch.nn.Module, img_size: Tuple[int, int], device: torch.device) -> Dict[str, Optional[float]]:
     total_params = sum(p.numel() for p in model.parameters())
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    param_memory_mb = total_params * 4 / (1024 ** 2)  # float32 估算
+    param_memory_mb = total_params * 4 / (1024 ** 2)  
 
     # FLOPs are intentionally omitted because external SAM2 + GuidedUp are not
     # compatible with standard FLOPs profilers; only param/memory stats are reported.
@@ -251,7 +251,7 @@ def main():
             print(f"        Reinitializing model...")
             torch.cuda.empty_cache()
             model = build_model(config).to(device)
-            # 再次检查
+           
             for name, param in model.named_parameters():
                 if param.requires_grad and (torch.isnan(param).any() or torch.isinf(param).any()):
                     print(f"[ERROR] Fold {fold}: Model parameter {name} STILL contains NaN/Inf after reinitialization!")
