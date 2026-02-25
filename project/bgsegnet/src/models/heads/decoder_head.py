@@ -25,7 +25,7 @@ class DecoderHead(nn.Module):
             K2 = self.k * self.k
             w = self.kernel_pred(guide)                    # (B,K2,H,W)
             w = w.view(B, K2, -1)
-            w = torch.softmax(w, dim=1).view(B, K2, H, W)  # 位置归一
+            w = torch.softmax(w, dim=1).view(B, K2, H, W)  
 
             x_pad = F.pad(logits, [self.pad, self.pad, self.pad, self.pad], mode='reflect')
             x_unf = F.unfold(x_pad, kernel_size=self.k, stride=1)  # (B, C*K2, H*W)
