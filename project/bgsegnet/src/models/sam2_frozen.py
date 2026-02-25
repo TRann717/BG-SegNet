@@ -18,7 +18,7 @@ class SAM2Frozen(nn.Module):
         super().__init__()
         self.feature_fn = feature_fn
         self.feat_keys = feat_keys
-        self.eval()  # 默认冻结
+        self.eval()  
         for p in self.parameters():
             p.requires_grad_(False)
 
