@@ -45,7 +45,7 @@ class MaskSegDataset(Dataset):
         # 1) Generic: <dataset_root>/<split>/{images,labels}
         # 2) PH2 raw: <dataset_root>/PH2 Dataset images/IMDxxx/... (one folder per lesion)
         self.img_files = []
-        self.mask_files = None  # 对于 PH2，我们会显式保存掩码路径
+        self.mask_files = None  
 
         split_img_dir = self.data_root / split / 'images'
         split_label_dir = self.data_root / split / 'labels'
@@ -65,7 +65,7 @@ class MaskSegDataset(Dataset):
         elif ph2_root.exists():
             # PH2 raw layout: parse IMD subfolders and split into train/val.
             self.img_dir = ph2_root
-            self.label_dir = ph2_root  # 掩码也在 IMDxxx 子目录中
+            self.label_dir = ph2_root 
             self._build_ph2_file_list()
         else:
             raise FileNotFoundError(
@@ -75,7 +75,7 @@ class MaskSegDataset(Dataset):
 
         print(f"Found {len(self.img_files)} images in {split} set.")
         
-        # 设置数据增强
+        
         self.transform = self._get_transform()
 
     def _build_ph2_file_list(self):
