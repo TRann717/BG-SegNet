@@ -107,7 +107,7 @@ class FocalLoss(nn.Module):
         return loss.mean()
 
 
-# ---------------------- 统一软边界（类无关/多尺度） ----------------------
+# ---------------------- ----------------------
 
 class UnifiedBoundaryLoss(nn.Module):
     def __init__(self,
@@ -279,7 +279,7 @@ class CurvAwareLoss(nn.Module):
         return loss
 
 
-# ---------------------- 组装：CompoundLoss ----------------------
+# ----------------------CompoundLoss ----------------------
 
 class CompoundLoss(nn.Module):
     """
