@@ -39,7 +39,7 @@ class CSegNet(nn.Module):
 
         # Neck: UPerNet (PPM + FPN) using probed channel dimensions.
         self.neck = UPerNet(
-            in_channels_dict=in_channels_dict,  # 使用自检的通道，不用config里的
+            in_channels_dict=in_channels_dict,  
             out_channels=model_cfg['neck']['out_channels'],
             ppm_bins=model_cfg['neck']['ppm_bins']
         )
@@ -61,7 +61,7 @@ class CSegNet(nn.Module):
         self.use_aux = model_cfg['head']['aux_loss']
         if self.use_aux:
             self.aux_head = AuxHead(
-                in_channels=in_channels_dict['F8'],  # 使用自检的通道
+                in_channels=in_channels_dict['F8'],  
                 num_classes=data_cfg['num_classes']
             )
         
@@ -82,7 +82,7 @@ class CSegNet(nn.Module):
             self.boundary_refine_alpha = model_cfg['boundary'].get('refine_alpha', 0.2)
             self.adaptive_alpha = model_cfg['boundary'].get('adaptive_alpha', True)
             self.alpha_min = model_cfg['boundary'].get('alpha_min', 0.15)
-            self.alpha_max = model_cfg['boundary'].get('alpha_max', 0.35)  # 收紧上限
+            self.alpha_max = model_cfg['boundary'].get('alpha_max', 0.35)  
             self.gamma_alpha = model_cfg['boundary'].get('gamma_alpha', 1.0)
             
             # Boundary supervision heads (only used in loss), with optional 1/4 and 1/8 scales.
@@ -161,7 +161,7 @@ class CSegNet(nn.Module):
             if self.classmix_enable and hasattr(self, 'head'):
                 with torch.no_grad():
                     coarse_logits = self.head.classifier(self.head.feat(neck_out))
-                    p_fg = torch.softmax(coarse_logits, dim=1)[:, 1:2]  # 前景概率
+                    p_fg = torch.softmax(coarse_logits, dim=1)[:, 1:2]  
             else:
                 p_fg = None
             
