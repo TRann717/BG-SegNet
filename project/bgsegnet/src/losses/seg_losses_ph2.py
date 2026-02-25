@@ -107,7 +107,7 @@ class FocalLoss(nn.Module):
         return loss.mean()
 
 
-# ---------------------- 统一软边界（类无关/多尺度） ----------------------
+# -----------------------------------------
 
 class UnifiedBoundaryLoss(nn.Module):
     def __init__(self,
@@ -279,7 +279,7 @@ class CurvAwareLoss(nn.Module):
         return loss
 
 
-# ---------------------- 组装：CompoundLoss ----------------------
+# ---------------------CompoundLoss ----------------------
 
 class CompoundLoss(nn.Module):
     """
@@ -383,7 +383,7 @@ class CompoundLoss(nn.Module):
         logits = outputs['logits']  # (B,C,H,W)
         if torch.isnan(logits).any() or torch.isinf(logits).any():
             print(f"[WARN] Detected NaN/Inf in logits! logits stats: min={logits.min()}, max={logits.max()}, nan_count={torch.isnan(logits).sum()}, inf_count={torch.isinf(logits).sum()}")
-            # 替换为安全的默认值
+           
             logits = torch.clamp(logits, min=-50.0, max=50.0)
             logits = torch.where(torch.isnan(logits) | torch.isinf(logits), torch.zeros_like(logits), logits)
         
@@ -505,12 +505,12 @@ class CompoundLoss(nn.Module):
                     for k, v in bd_parts.items():
                         loss_dict[f'bd_{k}'] = v.detach()
 
-        # 方向一致性损失
+        
         if 'dir_b4' in outputs and self.config['model']['boundary'].get('dir_weight', 0) > 0:
             dir_weight = float(self.config['model']['boundary']['dir_weight'])
             dir_b4 = outputs['dir_b4']  # (B, 2, H/4, W/4)
             
-            # Use gradient of soft boundary map as ground-truth direction field.
+           
             if self.bd_class_aware:
                 soft_per_class = generate_soft_boundary_per_class(
                     mask=targets, num_classes=self.num_classes,
