@@ -31,7 +31,7 @@ class CARAFEKernelPred(nn.Module):
             nn.Conv2d(in_channels, mid_channels, k_encoder, padding=k_encoder//2, bias=False),
             make_gn(mid_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(mid_channels, kernel_up * kernel_up, 1)  # 预测每个位置的kernel
+            nn.Conv2d(mid_channels, kernel_up * kernel_up, 1)  
         )
         
         self._init_weights()
@@ -73,7 +73,7 @@ class CARAFEModule(nn.Module):
         self.kernel_up = kernel_up
         self.pad = kernel_up // 2
         
-        # 核预测器
+      
         self.kernel_pred = CARAFEKernelPred(
             in_channels, kernel_up, k_encoder, compress_rate
         )
@@ -134,9 +134,9 @@ class LightCARAFE(nn.Module):
         self.carafe = CARAFEModule(
             in_channels=in_channels,
             scale=scale,
-            kernel_up=5,      # 5x5上采样核
-            k_encoder=3,      # 3x3编码器
-            compress_rate=16  # 高压缩率
+            kernel_up=5,     
+            k_encoder=3,     
+            compress_rate=16  
         )
     
     def forward(self, x, target_size=None):
@@ -155,7 +155,7 @@ class LightCARAFE(nn.Module):
             scale_w = target_W / W
             
             if scale_h > 1.5 and scale_w > 1.5:
-                x = self.carafe(x)  # 2x上采样
+                x = self.carafe(x)  
                 
             if x.shape[-2:] != target_size:
                 x = F.interpolate(x, size=target_size, mode='bilinear', align_corners=False)
