@@ -114,7 +114,7 @@ class TBLogger:
                          preds: torch.Tensor, tag: str, step: int):
         if self.tb is None or not self.img_log:
             return
-        # 只取前 N 张
+      
         n = min(images.shape[0], self.max_samples)
         grids = []
         for i in range(n):
@@ -148,7 +148,7 @@ class TBLogger:
             if img.max() <= 1.5:
                 img = img * 255.0
             
-            img_norm = img / 255.0  # 归一化到[0,1]
+            img_norm = img / 255.0 
             gt_colored = colorize_mask(gt)
             pred_colored = colorize_mask(pred)
             
