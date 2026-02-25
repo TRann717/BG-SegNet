@@ -115,7 +115,7 @@ def generate_boundary_from_mask(mask: torch.Tensor, kernel_size:int=3, num_class
     pad = (k-1)//2
     boundary = torch.zeros((B,1,H,W), device=mask.device, dtype=torch.float32)
 
-    for c in range(1, C):  # 跳过背景
+    for c in range(1, C):  
         fg = (mask==c).float().unsqueeze(1)  # (B,1,H,W)
         dil = F.max_pool2d(fg, kernel_size=k, stride=1, padding=pad)
         ero = -F.max_pool2d(-fg, kernel_size=k, stride=1, padding=pad)
@@ -129,9 +129,9 @@ def _single_boundary(mask, kernel_size):
     mask = mask.astype(np.uint8)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
     
-    # 腐蚀操作
+   
     eroded = cv2.erode(mask, kernel, iterations=1)
-    # 边界 = 原图 - 腐蚀图
+   
     boundary = mask - eroded
     
     return torch.from_numpy(boundary.astype(np.float32))
@@ -169,33 +169,33 @@ def generate_soft_boundary_from_mask(
     
     for b in range(B):
         m = mask[b].detach().cpu().numpy().astype(np.uint8)  # (H,W)
-        # 多类边界并集
+       
         boundary = np.zeros((H, W), np.uint8)
         for c in range(1, C):
             fg = (m == c).astype(np.uint8)
             grad = cv2.morphologyEx(fg, cv2.MORPH_GRADIENT, kernel)
             boundary = np.maximum(boundary, grad)
         
-        # 若整幅图没有边界，直接给出零权重，避免 distanceTransform 异常尺度
+       
         if boundary.sum() == 0:
             soft = np.zeros((H, W), dtype=np.float32)
             out.append(torch.from_numpy(soft).view(1, H, W))
             continue
         
-        # 距离变换：到最近边界（边界像素为0）的欧氏距离
+       
         inv = (boundary == 0).astype(np.uint8)
         dist = cv2.distanceTransform(inv, distanceType=cv2.DIST_L2, maskSize=3).astype(np.float64)
         
-        # 先记录"带宽外"掩码，再对距离做裁剪，避免 (大数)**2 溢出
+       
         if band_pixels is not None and band_pixels > 0:
             far_mask = dist > float(band_pixels)
-            # 裁剪距离后再平方，数值稳定
+          
             np.minimum(dist, float(band_pixels), out=dist)
         else:
             far_mask = None
         
         denom = 2.0 * (float(sigma) ** 2) + 1e-12
-        # 用 float64 做平方/指数，最后转回 float32
+        
         soft = np.exp(-np.square(dist, dtype=np.float64) / denom).astype(np.float32, copy=False)
         if far_mask is not None:
             soft[far_mask] = 0.0
@@ -239,7 +239,7 @@ def generate_soft_boundary_per_class(
         sc = []
         for c in range(C):
             if c == 0:
-                # 背景边界可选：通常不监督；给0面罩
+                
                 sc.append(np.zeros((H, W), dtype=np.float32))
                 continue
                 
