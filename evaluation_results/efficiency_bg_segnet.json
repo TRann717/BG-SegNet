@@ -1,0 +1,183 @@
+{
+  "model": "BG-SegNet",
+  "gpu": "NVIDIA GeForce RTX 4090 D",
+  "config": "/root/autodl-tmp/chushi/runs/wound2/config.yaml",
+  "checkpoint": "/root/autodl-tmp/chushi/runs/wound2/best.pth",
+  "parameters": {
+    "total": 86820528,
+    "trainable": 5970350,
+    "frozen": 80850178,
+    "total_M": 86.82,
+    "trainable_M": 5.97,
+    "frozen_M": 80.85,
+    "by_module": {
+      "backbone (SAM2, frozen)": {
+        "total_M": 80.85,
+        "trainable_M": 0.0
+      },
+      "neck (UPerNet)": {
+        "total_M": 4.894,
+        "trainable_M": 4.894
+      },
+      "decoder head": {
+        "total_M": 0.295,
+        "trainable_M": 0.295
+      },
+      "boundary gate": {
+        "total_M": 0.292,
+        "trainable_M": 0.292
+      },
+      "boundary head @1/4": {
+        "total_M": 0.24,
+        "trainable_M": 0.24
+      },
+      "boundary head @1/8": {
+        "total_M": 0.24,
+        "trainable_M": 0.24
+      },
+      "aux head": {
+        "total_M": 0.009,
+        "trainable_M": 0.009
+      }
+    }
+  },
+  "memory": {
+    "peak_gpu_memory_mb": 869.97,
+    "peak_gpu_memory_gb": 0.85
+  },
+  "compute": {
+    "macs": 146139578176,
+    "gmacs": 146.14,
+    "gflops": 292.279,
+    "input_size": [
+      640,
+      640
+    ],
+    "batch_size": 1,
+    "precision": "fp32",
+    "method": "thop",
+    "note": "Static MAC count on CPU (fp32) for one full forward pass; includes frozen SAM2 encoder. GFLOPs = 2 * GMACs (mul+add). Profiled on a deep-copied model to avoid thop hook side effects."
+  },
+  "timing": {
+    "batch_size": 1,
+    "input_size": [
+      640,
+      640
+    ],
+    "precision": "fp32",
+    "warmup_iters": 50,
+    "timed_runs": 100,
+    "latency_ms_per_image_mean": 15.9689,
+    "latency_ms_per_image_std": 0.0923,
+    "throughput_fps_mean": 62.62,
+    "throughput_fps_std": 0.36,
+    "latency_ms_all_runs": [
+      16.0045,
+      16.0321,
+      15.9611,
+      15.9423,
+      15.9223,
+      15.9314,
+      15.9333,
+      15.8926,
+      15.9338,
+      15.9106,
+      15.9265,
+      16.0329,
+      15.9444,
+      15.9872,
+      15.9689,
+      15.9472,
+      15.9837,
+      15.9685,
+      15.8581,
+      15.9026,
+      15.9629,
+      15.9332,
+      15.961,
+      15.9066,
+      15.9387,
+      15.8887,
+      15.9401,
+      15.9273,
+      15.9539,
+      15.9825,
+      15.954,
+      15.8933,
+      15.9796,
+      15.9419,
+      15.8995,
+      15.9467,
+      15.9737,
+      15.926,
+      15.9708,
+      15.9097,
+      16.0074,
+      15.9663,
+      16.0039,
+      16.018,
+      15.9487,
+      15.9371,
+      15.9281,
+      15.9011,
+      15.9987,
+      15.9337,
+      16.7762,
+      16.1162,
+      15.9533,
+      16.0105,
+      15.9625,
+      16.049,
+      15.9823,
+      15.986,
+      15.9916,
+      15.975,
+      15.9146,
+      15.9031,
+      15.9009,
+      15.9176,
+      15.9533,
+      15.9628,
+      15.9614,
+      15.9876,
+      16.0356,
+      15.9997,
+      16.0085,
+      15.9624,
+      15.9663,
+      15.9611,
+      15.8952,
+      15.9436,
+      15.9466,
+      16.0196,
+      15.8999,
+      15.9286,
+      16.003,
+      15.9847,
+      16.0412,
+      15.965,
+      15.9334,
+      15.9646,
+      15.9617,
+      15.9896,
+      15.9679,
+      15.8978,
+      15.9322,
+      15.9313,
+      15.9719,
+      15.9297,
+      16.0493,
+      15.9986,
+      16.0486,
+      16.0367,
+      15.994,
+      16.0046
+    ]
+  },
+  "notes": [
+    "Timing includes the full inference forward pass: frozen SAM2 encoder + UPerNet + boundary modules + decoder.",
+    "MAC/FLOP counts (thop) cover the same full forward pass on CPU (fp32).",
+    "Latency is per-image time when batch_size=1 unless otherwise specified.",
+    "Use torch.cuda.synchronize() before/after each timed iteration."
+  ]
+}
