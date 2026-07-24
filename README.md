@@ -21,7 +21,7 @@ BG-SegNet follows an **explicit boundary learning + boundary-gated residual refi
 
 Training-only components (auxiliary deep supervision on \(F_8\), curriculum boundary-loss warm-up, and progressive gate-unfreezing) stabilize optimization but are disabled at inference.
 
-![Overall Model Architecture](figures/model.png)
+![Overall Model Architecture](figures/model2.png)
 
 ## Results
 
